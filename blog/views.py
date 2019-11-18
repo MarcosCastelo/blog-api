@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.reverse import reverse
+from rest_framework.throttling import ScopedRateThrottle
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 from django import http
 from .models import *
 from .serializers import *
@@ -57,6 +60,21 @@ class ApiRoot(generics.GenericAPIView):
             'post-comments' : reverse(PostCommentList.name, request=request),
             'profile-activity' : reverse('profile-activity', request=request),
             'users': reverse(UserList.name, request=request),
+        })
+
+class ThrottlingAuthToken(ObtainAuthToken):
+    throttle_scope = 'token-auth'
+    throttle_classes = (ScopedRateThrottle,)
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'email': user.email
         })
 
 class ProfileList(generics.ListCreateAPIView):
@@ -181,8 +199,10 @@ class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     name = 'user-list'
+    permission_classes = (permissions.IsAuthenticated,)
 
 class UserDetail(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     name = 'user-detail'
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser)

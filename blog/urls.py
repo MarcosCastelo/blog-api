@@ -1,5 +1,6 @@
 from django.urls import path, include
 from blog import views
+from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
     path('config/load-data', views.load_json),
@@ -19,5 +20,5 @@ urlpatterns = [
     path('profile-activity', views.ProfileActivity.as_view(), name='profile-activity'),
     path('users/',views.UserList.as_view(), name=views.UserList.name),
     path('users/<int:pk>',views.UserDetail.as_view(), name=views.UserDetail.name),
-    path('api-auth/', include('rest_framework.urls'))
+    path('api-token-auth/', views.ThrottlingAuthToken.as_view(), name='token-auth')
 ]
