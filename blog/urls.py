@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from blog import views
 
 urlpatterns = [
@@ -16,5 +16,8 @@ urlpatterns = [
     path('post-comments/<int:pk>', views.PostCommentDetail.as_view(), name=views.PostCommentDetail.name),
     path('posts/<int:pk>/comments', views.CommentsPostList.as_view(), name=views.CommentsPostList.name),
     path('posts/<int:post_id>/comments/<int:pk>', views.CommentsPostDetail.as_view(), name='comments-post-detail'),
-    path('profile-activity', views.ProfileActivity.as_view(), name='profile-activity')
+    path('profile-activity', views.ProfileActivity.as_view(), name='profile-activity'),
+    path('users/',views.UserList.as_view(), name=views.UserList.name),
+    path('users/<int:pk>',views.UserDetail.as_view(), name=views.UserDetail.name),
+    path('api-auth/', include('rest_framework.urls'))
 ]

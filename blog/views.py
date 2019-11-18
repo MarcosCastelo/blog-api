@@ -7,6 +7,7 @@ from rest_framework.reverse import reverse
 from django import http
 from .models import *
 from .serializers import *
+from .permissions import *
 import json
 
 def load_json(request):
@@ -54,58 +55,69 @@ class ApiRoot(generics.GenericAPIView):
             'comments' : reverse(CommentList.name, request=request),
             'profile-posts' : reverse(ProfilePostList.name, request=request),
             'post-comments' : reverse(PostCommentList.name, request=request),
-            'profile-activity' : reverse('profile-activity', request=request)
+            'profile-activity' : reverse('profile-activity', request=request),
+            'users': reverse(UserList.name, request=request),
         })
 
 class ProfileList(generics.ListCreateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     name = 'profile-list'
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 class ProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     name = 'profile-detail'
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
 class PostList(generics.ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     name = 'post-list'
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     name = 'post-detail'
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
 class CommentList(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     name = 'comment-list'
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     name = 'comment-detail'
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
 class ProfilePostList(generics.ListAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfilePostSerializer
     name = 'profile-post-list'
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, )
 
 class ProfilePostDetail(generics.RetrieveAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfilePostSerializer
     name = 'profile-post-detail'
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
 class PostCommentList(generics.ListAPIView):
     queryset = Post.objects.all()
     serializer_class = PostCommentSerializer
     name = 'post-comment-list'
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 class PostCommentDetail(generics.RetrieveAPIView):
     queryset = Post.objects.all()
     serializer_class = PostCommentSerializer
     name = 'post-comment-detail'
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
 
 class CommentsPostList(generics.ListCreateAPIView):
@@ -119,6 +131,7 @@ class CommentsPostList(generics.ListCreateAPIView):
 
 
 class CommentsPostDetail(APIView):
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
     def get_queryset(self, post_id, pk):
         try:
             post = Comment.objects.filter(post_id=post_id)
@@ -164,3 +177,12 @@ class ProfileActivity(APIView):
         return Response(activity, status=status.HTTP_200_OK)
 
      
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    name = 'user-list'
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    name = 'user-detail'

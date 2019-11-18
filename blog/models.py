@@ -1,5 +1,8 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 
+
+User = get_user_model()
 
 class Address(models.Model):
     street = models.CharField(max_length=80)
@@ -14,6 +17,7 @@ class Address(models.Model):
         return self.zipcode
 
 class Profile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="profile")
     name = models.CharField(max_length=50)
     email = models.EmailField(max_length=50)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
