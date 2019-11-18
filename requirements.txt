@@ -16,7 +16,7 @@ cryptography==2.7
 defusedxml==0.6.0
 distlib==0.2.9
 distro==1.4.0
-Django==2.2
+Django==2.2.4
 django-filter==2.2.0
 djangorestframework==3.10.3
 docutils==0.14
